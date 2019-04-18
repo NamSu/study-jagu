@@ -9,4 +9,8 @@
 
 ### [02.순환과 반복](https://github.com/NamSu/study-jagu/blob/master/002cycle.md)
 
-### [03. 배열,구조체,포인터](https://github.com/NamSu/study-jagu/blob/master/003strpointer.md)
+### [03.배열,구조체,포인터](https://github.com/NamSu/study-jagu/blob/master/003strpointer.md)
+
+### [04.스택](https://github.com/NamSu/study-jagu/blob/master/004stack.md)
+
+### [05.큐](https://github.com/NamSu/study-jagu/blob/master/005queue.md)
