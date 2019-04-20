@@ -34,8 +34,7 @@ typedef struct {
 } linear_queue;
 
 void init_queue(linear_queue *lq) { // 큐 초기화
-    lq->rear = -1; // 선형 큐는 -1
-    lq->front = -1; // 선형 큐는 -1
+    lq->rear = lq->reqr = -1; // 선형 큐는 -1
 }
 void queue_print(linear_queue *lq) { // 큐 출력
     for (int i = 0; i < MAX_SIZE; i++) {
@@ -60,7 +59,7 @@ int check_empty(linear_queue *lq) {
         return 0;
     }
 }
-void enqueue(linear_queue *lq, int queueitem) { // 큐에 데이터 삽입
+void enqueue(linear_queue *lq, element queueitem) { // 큐에 데이터 삽입
     if (check_full(lq)) {
         fprintf("queue is full");
         return;
@@ -97,6 +96,163 @@ int main(void) {
 
 #### 5.4 원형 큐
 
-선형 큐는 **1차원 배열을 사용하여 큐를 구현**하는 것으로, 기본적인 큐의 구조에 front, rear 변수가 추가되며, **초기화 값이 -1 이 아닌 0이다.**
+원형 큐는 **1차원 배열을 사용하여 큐를 구현**하는 것으로, 기본적인 큐의 구조에 front, rear 변수가 추가되며, **초기화 값이 -1 이 아닌 0이다.**
+
+공백 상태에서는 **front와 rear가 같은 위치에서 시작**하며, 포화상태는 **front가 앞, rear가 맨 뒤인 상태**이다. 여기서 중요한점은 원형 큐는 **꽉 찰경우 공백과 포화를 구분 할 수가 없어서 항상 1개의 큐는 비어있어야한다.**
 
 아래와 같이 구현 가능하다.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_SIZE 5
+typedef int element;
+typedef struct {
+    int front, rear;
+    element data[MAX_SIZE];
+} circle_queue;
+
+void init_queue(circle_queue *cq) { // 0부터 시작
+    cq->rear = cq->front = 0;
+}
+void check_empty(circle_queue *cq) {
+    return (cq->front == cq->rear);
+}
+void check_full(circle_queue *cq) {
+    return ((cq->rear + 1) % MAX_SIZE == cq->front); // rear 값이 front값이랑 같을 경우 꽉 찬 경우
+}
+void queue_print(circle_queue *cq) { // queue 내용 출력
+    int circletmp;
+    if (!check_empty(cq)) {
+        circletmp = cq->front;
+
+        do {
+            circletmp = ((circletmp + 1) % MAX_SIZE);
+            printf("%d _", cq->data[circletmp]);
+            if (circletmp == cq->rear) {
+                break;
+            }
+        } while (circletmp != cq->front);
+    }
+}
+void enqueue(circle_queue *cq, element queueitem) { // 큐에 데이터 삽입
+    if (check_full(cq)) {
+        fprintf("queue is full");
+        return;
+    } else {
+        cq->rear = (cq->rear + 1) % MAX_SIZE;
+        cq->data[cq->rear] = queueitem;
+    }
+}
+int dequeue(circle_queue *cq) { // 큐에서 제거 후 추출
+    if (check_empty(cq)) {
+        fprintf("queue is empty");
+        return -1;
+    } else {
+        cq->front = (cq->front + 1) % MAX_SIZE;
+        return cq->data[cq->front];
+    }
+}
+int peek(circle_queue *cq) { // 큐에서 추출만
+    if (check_empty(cq)) {
+        fprintf("queue is empty");
+        return -1;
+    } else {
+        return cq->data[cq->front];
+    }
+}
+int main(void) {
+    ...
+}
+```
+
+이렇게 간단하게 데이터 삽입/추출/출력이 가능한 원형 큐를 만들 수 있다.
+
+#### 5.5 덱
+
+덱은 Double-Ended Queue의 줄임말로 큐를 약간 더 발전시킨 형태이다. **앞과 뒤 모두에서 삽입과 삭제가 가능한 특징이 있다.**
+
+이렇게 되면 어떤 구조로 작동하는지 의문점이 들 수 있다. 신기하게도 **스택과 큐의 연산과 비슷한 점**이 있다.
+
+아래와 같은 새로운 연산자들이 추가 되었다.
+
+- add_front, delete_front
+    - 스택의 push, pop과 비슷하다.
+- add_rear, delete_rear
+    - 큐의 enqueue, dequeue와 비슷하다.
+
+아래와 같이 구현 가능하다.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_SIZE 5
+typedef int element;
+typedef struct {
+    int front, rear;
+    element data[MAX_SIZE];
+} de_queue;
+
+void init_queue(de_queue *dq) { // 0부터 시작
+    dq->rear = dq->front = 0;
+}
+void check_empty(de_queue *dq) {
+    return (dq->front == dq->rear);
+}
+void check_full(de_queue *dq) {
+    return ((dq->rear + 1) % MAX_SIZE == dq->front); // rear 값이 front값이랑 같을 경우 꽉 찬 경우
+}
+void queue_print(de_queue *dq) { // 덱 출력
+    int dectmp;
+    if (!check_empty(dq)) {
+        dectmp = dq->front;
+        do {
+            dectmp = (dectmp + 1) % MAX_SIZE;
+            printf("%d _", dq->data[dectmp]);
+            if (dectmp == dq->rear) {
+                break;
+            }
+        } while (dectmp != dq->front);
+    }
+}
+void add_front(de_queue *dq element dqitem) { // 덱 앞에서 삽입
+    if (check_full(dq)) {
+        fprintf("queue is full");
+        return;
+    } else {
+        dq->data[dq->front] = dqitem;
+        dq->front = ((dq->front - 1) + MAX_SIZE) % MAX_SIZE;
+    }
+}
+int del_front(de_queue *dq) { // 덱 앞에서 제거
+    if (check_empty(dq)) {
+        fprintf("queue is empty");
+        return -1;
+    } else {
+        return dq->data[(dq->front + 1) % MAX_SIZE];
+    }
+}
+void add_rear(de_queue *dq element dqitem) { // 덱 뒤에서 삽입
+    if (check_full(dq)) {
+        fprintf("queue is full");
+        return;
+    } else {
+        dq->rear = (dq->rear + 1) % MAX_SIZE;
+        dq->data[dq->rear] = dqitem;
+    }
+}
+int del_rear(de_queue *dq) { // 덱 뒤에서 제거
+    if (check_empty(dq)) {
+        fprintf("queue is empty");
+        return -1;
+    } else {
+        return dq->rear = ((dq->rear - 1) + MAX_SIZE) % MAX_SIZE;
+    }
+}
+
+int main(void) {
+    ...
+}
+```
+
+이렇게 간단하게 데이터 삽입/추출/출력이 가능한 덱을 만들 수 있다.
